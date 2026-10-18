@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Verify — Koola10</title>
+<meta name="description" content="Verify that an AI agent is authorized to act on behalf of its owner. Enter the assignment code to check.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=DM+Sans:wght@400;500;700&display=swap');
+
+:root{
+  --bg:#f4f8f7; --paper:#ffffff; --ink:#10201e; --muted:#526561;
+  --line:#cbd8d5; --line-strong:#9cb4af;
+  --teal:#006b5e; --teal-deep:#004f45; --teal-wash:#dff3ee;
+  --lime:#d5ff75; --lime-ink:#16320d;
+  --navy:#173c4c;
+  --danger:#a63232; --danger-wash:#fde8e5;
+  --amber:#8a5a00; --amber-wash:#fdf3dd;
+  --radius-lg:24px; --radius-md:14px;
+  --shadow:0 22px 60px rgba(18,55,49,.11);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#091413; --paper:#10201e; --ink:#f0faf7; --muted:#9db3ac;
+    --line:#27403b; --line-strong:#3c5a53;
+    --teal:#55d2bd; --teal-deep:#8fe3d3; --teal-wash:#123b34;
+    --lime:#c6f267; --lime-ink:#101f04;
+    --navy:#8fcde5;
+    --danger:#f08a8a; --danger-wash:#3a1d1a;
+    --amber:#e8b64c; --amber-wash:#3a2c12;
+    --shadow:0 22px 60px rgba(0,0,0,.45);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; font-family:'DM Sans',system-ui,sans-serif; color:var(--ink);
+  background-color:var(--bg);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:64px 64px;
+  line-height:1.55;
+}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important; transition:none!important;} }
+.wrap{max-width:1140px; margin:0 auto; padding:0 24px;}
+a{color:var(--teal)}
+
+/* ---------- hero ---------- */
+.hero{display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:start; padding:72px 0 56px;}
+.kicker{
+  display:inline-flex; align-items:center; gap:10px;
+  border:1px solid var(--line-strong); border-radius:999px;
+  padding:8px 16px 8px 8px; font-size:.85rem; font-weight:500; color:var(--muted);
+  background:var(--paper); margin-bottom:28px;
+}
+.kicker .dot{
+  width:28px; height:28px; border-radius:50%; background:var(--teal);
+  display:inline-flex; align-items:center; justify-content:center;
+  color:#fff; font-size:.9rem; font-weight:700;
+}
+h1.display{
+  font-family:'Newsreader',Georgia,serif; font-weight:600;
+  font-size:clamp(3.15rem,7vw,6.75rem); line-height:.89; letter-spacing:-0.055em;
+  margin:0 0 24px;
+}
+h1.display em{font-style:italic; color:var(--teal-deep);}
+.lede{font-size:1.15rem; color:var(--muted); max-width:34rem; margin:0 0 28px;}
+.badges{display:flex; gap:12px; flex-wrap:wrap;}
+.badge{
+  display:inline-flex; align-items:center; gap:8px; font-size:.85rem; font-weight:500;
+  border:1px solid var(--line); border-radius:999px; padding:7px 14px; background:var(--paper);
+}
+.badge svg{width:16px; height:16px; stroke:var(--teal);}
+
+/* ---------- verify card ---------- */
+.card{
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow); min-height:600px; overflow:hidden;
+}
+.card-head{
+  background:var(--teal-wash); padding:22px 28px; border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.card-head h2{margin:0; font-size:1.05rem; font-weight:700;}
+.live-pill{
+  font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  background:var(--lime); color:var(--lime-ink); border-radius:999px; padding:6px 14px;
+}
+.card-body{padding:28px;}
+label.field-label{display:block; font-weight:700; font-size:.9rem; margin-bottom:10px;}
+.code-row{display:flex; gap:10px;}
+input#code{
+  flex:1; min-width:0; font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:500;
+  text-transform:uppercase; letter-spacing:.04em;
+  border:1.5px solid var(--line-strong); border-radius:var(--radius-md);
+  padding:14px 16px; background:var(--bg); color:var(--ink);
+}
+input#code:focus{outline:3px solid var(--lime); outline-offset:2px; border-color:var(--teal);}
+button#verify-btn{
+  background:var(--teal); color:#fff; border:none; border-radius:var(--radius-md);
+  font-family:'DM Sans',sans-serif; font-weight:700; font-size:1rem;
+  padding:14px 28px; cursor:pointer; white-space:nowrap;
+}
+button#verify-btn:hover{background:var(--teal-deep);}
+button#verify-btn:focus-visible{outline:3px solid var(--lime); outline-offset:2px;}
+button#verify-btn:disabled{opacity:.6; cursor:wait;}
+.demo-line{margin-top:14px; font-size:.9rem; color:var(--muted);}
+.demo-line button{
+  background:none; border:none; padding:0; color:var(--teal); font:inherit;
+  text-decoration:underline; cursor:pointer;
+}
+.result{margin-top:24px;}
+.status{
+  border-radius:var(--radius-md); padding:14px 18px; font-weight:700; margin-bottom:16px;
+}
+.status.ok{background:var(--teal-wash); color:var(--teal-deep);}
+.status.bad{background:var(--danger-wash); color:var(--danger);}
+.status.warn{background:var(--amber-wash); color:var(--amber);}
+.status.neutral{background:var(--bg); color:var(--muted); border:1px solid var(--line);}
+dl.record{margin:0; display:grid; grid-template-columns:150px 1fr; gap:0;}
+dl.record dt{
+  font-weight:700; font-size:.82rem; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--muted); padding:12px 0; border-top:1px solid var(--line);
+}
+dl.record dd{margin:0; padding:12px 0 12px 16px; border-top:1px solid var(--line);}
+.restriction{
+  margin-top:18px; border:1.5px dashed var(--line-strong); border-radius:var(--radius-md);
+  padding:14px 18px; font-size:.92rem; color:var(--muted);
+}
+.sample-banner{
+  background:var(--navy); color:#f6fbff; border-radius:var(--radius-md);
+  padding:12px 18px; font-weight:700; font-size:.9rem; margin-bottom:16px;
+  display:flex; align-items:center; gap:10px;
+}
+.sample-banner .pill{background:var(--lime); color:var(--lime-ink); border-radius:999px; padding:3px 12px; font-size:.72rem; letter-spacing:.06em;}
+@media (max-width:640px){ dl.record{grid-template-columns:1fr;} dl.record dd{padding:0 0 12px;} }
+
+/* ---------- sections ---------- */
+section.block{padding:56px 0;}
+.eyebrow{font-size:.8rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); margin:0 0 10px;}
+h2.sec-title{font-family:'Newsreader',Georgia,serif; font-weight:600; font-size:clamp(1.9rem,4vw,3rem); letter-spacing:-0.02em; margin:0 0 32px; line-height:1.05;}
+.cap-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+.cap{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-md); padding:24px;}
+.cap .chip{
+  width:44px; height:44px; border-radius:12px; background:var(--lime); color:var(--lime-ink);
+  display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:14px;
+}
+.cap h3{margin:0 0 6px; font-size:1.05rem;}
+.cap p{margin:0; color:var(--muted); font-size:.95rem;}
+@media (max-width:860px){ .cap-grid{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:560px){ .cap-grid{grid-template-columns:1fr;} }
+
+.steps{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--paper); padding:12px 28px;}
+.step{display:flex; gap:20px; padding:22px 0; border-top:1px solid var(--line); align-items:flex-start;}
+.step:first-child{border-top:none;}
+.step .n{
+  flex:0 0 44px; width:44px; height:44px; border-radius:50%;
+  background:var(--teal); color:#fff; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+}
+.step h3{margin:2px 0 4px; font-size:1.05rem;}
+.step p{margin:0; color:var(--muted); font-size:.95rem;}
+
+.bounds{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+@media (max-width:700px){ .bounds{grid-template-columns:1fr;} }
+.bound{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-md); padding:26px;}
+.bound h3{margin:0 0 14px; font-size:1.05rem;}
+.bound ul{margin:0; padding-left:20px; color:var(--muted);}
+.bound li{margin-bottom:10px;}
+.bound.no h3{color:var(--danger);}
+.live-note{
+  margin-top:18px; background:var(--navy); color:#f6fbff; border-radius:var(--radius-md);
+  padding:22px 26px; display:flex; gap:16px; align-items:center; flex-wrap:wrap;
+}
+.live-note .pill{background:var(--lime); color:var(--lime-ink); border-radius:999px; padding:5px 14px; font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;}
+.live-note p{margin:0; flex:1; min-width:240px;}
+
+footer{border-top:1px solid var(--line); padding:28px 0 40px; margin-top:24px;}
+footer .wrap{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; color:var(--muted); font-size:.9rem;}
+
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr; padding:48px 0 40px;}
+  .card{min-height:0;}
+  .code-row{flex-direction:column;}
+  button#verify-btn{width:100%;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div>
+      <span class="kicker"><span class="dot">✓</span> Task-specific proof from Koola10</span>
+      <h1 class="display">Proof your agent <em>speaks for you.</em></h1>
+      <p class="lede">When Muse acts on the owner's behalf, the business gets an assignment code.
+        Enter it here to see exactly what the agent is authorized to do — and what it is not.</p>
+      <div class="badges">
+        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg>Domain-backed</span>
+        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Time-limited</span>
+        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Scope-limited</span>
+      </div>
+    </div>
+
+    <div class="card" aria-label="Verification">
+      <div class="card-head">
+        <h2>Check an assignment code</h2>
+        <span class="live-pill">Live</span>
+      </div>
+      <div class="card-body">
+        <form id="verify-form">
+          <label class="field-label" for="code">Assignment code</label>
+          <div class="code-row">
+            <input id="code" name="code" type="text" placeholder="KOOLA10-XXXX"
+                   autocomplete="off" autocapitalize="characters" spellcheck="false"
+                   aria-describedby="demo-line">
+            <button id="verify-btn" type="submit">Verify</button>
+          </div>
+        </form>
+        <p class="demo-line" id="demo-line">
+          Want to see the layout first? <button type="button" id="demo-btn">Preview the design with KOOLA10-DEMO</button>
+        </p>
+        <div class="result" id="result" aria-live="polite"></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="block">
+    <p class="eyebrow">01 — What this unlocks</p>
+    <h2 class="sec-title">Useful delegation without a blank check.</h2>
+    <div class="cap-grid">
+      <div class="cap"><div class="chip">☎</div><h3>Contact businesses</h3><p>Reach out and ask questions in the owner's name, on the record.</p></div>
+      <div class="cap"><div class="chip">◷</div><h3>Coordinate appointments</h3><p>Book, move, or confirm times within the stated window.</p></div>
+      <div class="cap"><div class="chip">≡</div><h3>Gather quotes</h3><p>Collect written terms and pricing for the owner to compare.</p></div>
+      <div class="cap"><div class="chip">⇄</div><h3>Negotiate inside a limit</h3><p>Push for better terms up to the ceiling written in the scope.</p></div>
+      <div class="cap"><div class="chip">☰</div><h3>Track open requests</h3><p>Follow up on tickets, orders, and pending replies.</p></div>
+      <div class="cap"><div class="chip">▤</div><h3>Collect routine documents</h3><p>Receive statements, forms, and confirmations for review.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">02 — The check</p>
+    <h2 class="sec-title">A simple chain businesses can trust.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><h3>Owner defines the job</h3><p>Purpose, scope, and hard limits are written into a verification record.</p></div></div>
+      <div class="step"><div class="n">2</div><div><h3>A code is issued</h3><p>The agent receives an unguessable assignment code tied to that record.</p></div></div>
+      <div class="step"><div class="n">3</div><div><h3>The business checks</h3><p>Enter the code here to see who the agent represents and what it may do.</p></div></div>
+      <div class="step"><div class="n">4</div><div><h3>The scope is enforced</h3><p>Anything outside the record — or past its expiration — is not authorized.</p></div></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">03 — Hard boundaries</p>
+    <h2 class="sec-title">Proof of representation is not unlimited authority.</h2>
+    <div class="bounds">
+      <div class="bound yes">
+        <h3>Allowed when listed</h3>
+        <ul>
+          <li>Asking questions and collecting written information</li>
+          <li>Scheduling and confirming within stated windows</li>
+          <li>Comparing options and returning them for owner review</li>
+          <li>Negotiating inside an explicit written limit</li>
+        </ul>
+      </div>
+      <div class="bound no">
+        <h3>Owner approval still required</h3>
+        <ul>
+          <li>Purchases, payments, and binding contracts</li>
+          <li>Password, security, or account-access changes</li>
+          <li>Disclosure of credentials or identity documents</li>
+          <li>Anything outside the scope or past expiration</li>
+        </ul>
+      </div>
+    </div>
+    <div class="live-note">
+      <span class="pill">Live</span>
+      <p>This is the live verification service. Codes are issued by the owner, expire automatically,
+         can be revoked at any time, and every check is logged. Sample records are always marked SAMPLE and never mixed with live ones.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap" style="padding:0">
+      <span>Verification principle: least authority, clearly stated.</span>
+      <span>Never share passwords or one-time codes with an agent.</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+const form = document.getElementById('verify-form');
+const input = document.getElementById('code');
+const btn = document.getElementById('verify-btn');
+const result = document.getElementById('result');
+const demoBtn = document.getElementById('demo-btn');
+
+const SAMPLE = {
+  representative: 'Muse',
+  principal: 'Koola10 owner',
+  purpose: 'Request and compare service quotes',
+  scope: 'Ask questions, collect written terms, and return options for owner review.',
+  authority: 'No purchase or binding commitment',
+  status: 'Sample only — no live authority'
+};
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function recordHtml(r, opts){
+  const rows = ['representative','principal','purpose','scope','authority','status']
+    .map(k => `<dt>${k[0].toUpperCase()+k.slice(1)}</dt><dd>${esc(r[k] ?? '—')}</dd>`).join('');
+  return `${opts.banner || ''}<dl class="record">${rows}</dl>
+    <div class="restriction">${esc(opts.note)}</div>`;
+}
+
+function renderSample(){
+  result.innerHTML = recordHtml(SAMPLE, {
+    banner: `<div class="sample-banner"><span class="pill">SAMPLE</span> Sample record — demonstrates the layout only.</div>
+             <div class="status neutral">Demo record found</div>`,
+    note: 'This record demonstrates the layout. It does not authorize Muse or any other agent to act.'
+  });
+}
+
+function renderLive(data){
+  if (data.status === 'active'){
+    result.innerHTML = recordHtml({
+      representative: data.representative,
+      principal: data.principal,
+      purpose: data.purpose,
+      scope: data.scope,
+      authority: data.authority,
+      status: 'Active — verified live'
+    }, {
+      banner: `<div class="status ok">✓ Live record verified${data.verification_count ? ` · checked ${esc(data.verification_count)} time${data.verification_count==1?'':'s'}` : ''}</div>`,
+      note: 'This record authorizes only what is listed above. Confirm the scope and expiration before proceeding.'
+    });
+  } else if (data.status === 'expired' || data.status === 'revoked'){
+    const cls = data.status === 'expired' ? 'warn' : 'bad';
+    result.innerHTML = `<div class="status ${cls}">${data.status === 'expired' ? 'This code has expired.' : 'This code has been revoked by the owner.'}</div>
+      <dl class="record"><dt>Principal</dt><dd>${esc(data.principal || '—')}</dd></dl>
+      <div class="restriction">Do not proceed on the basis of an unverified claim.</div>`;
+  } else {
+    result.innerHTML = `<div class="status bad">No record found for this code.</div>
+      <div class="restriction">Do not proceed on the basis of an unverified claim.</div>`;
+  }
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const code = input.value.trim().toUpperCase();
+  if (!code){
+    result.innerHTML = `<div class="status neutral">Enter an assignment code to run the check.</div>`;
+    return;
+  }
+  if (code === 'KOOLA10-DEMO'){ renderSample(); return; }
+  btn.disabled = true;
+  result.innerHTML = `<div class="status neutral">Checking…</div>`;
+  try {
+    const res = await fetch('/api/verify/' + encodeURIComponent(code));
+    const data = await res.json().catch(() => ({}));
+    renderLive(data);
+  } catch(err){
+    result.innerHTML = `<div class="status bad">Could not reach the verification service. Try again.</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+demoBtn.addEventListener('click', () => { input.value = 'KOOLA10-DEMO'; renderSample(); });
+</script>
+</body>
+</html>

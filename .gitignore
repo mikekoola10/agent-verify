@@ -1,0 +1,4 @@
+.env
+agent_verify.db
+__pycache__/
+*.pyc
