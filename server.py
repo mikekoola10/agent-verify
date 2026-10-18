@@ -30,6 +30,7 @@ from urllib.parse import urlparse, unquote
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(os.environ.get("DB_DIR", BASE_DIR), "agent_verify.db")
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)  # DB_DIR may not exist yet (e.g. fresh disk mount)
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 PUBLIC_DIR = BASE_DIR  # index.html served from build dir
 
