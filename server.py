@@ -29,7 +29,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, unquote
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "agent_verify.db")
+DB_PATH = os.path.join(os.environ.get("DB_DIR", BASE_DIR), "agent_verify.db")
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 PUBLIC_DIR = BASE_DIR  # index.html served from build dir
 
